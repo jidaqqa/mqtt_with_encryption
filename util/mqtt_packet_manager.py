@@ -183,6 +183,9 @@ class MQTTPacketManager(object):
                 for user_property in properties:
                     parsed_msg['properties'][user_property] = properties[user_property]
         current_pos, parsed_msg['client_id'] = MQTTPacketManager.extract_client_id(packet, current_pos)
+        current_pos, parsed_msg['username'] = MQTTPacketManager.extract_username(packet, current_pos)
+        current_pos, parsed_msg['password'] = MQTTPacketManager.extract_password(packet, current_pos)
+
         return parsed_msg
 
     @staticmethod
@@ -448,3 +451,29 @@ class MQTTPacketManager(object):
         if logger.DEBUG:
             logger.logging.debug(f"\tClientID: {client_id}")
         return position, client_id
+
+    def extract_username(packet, position):
+
+        position += 1
+        length_username = packet[position]
+        position += 1
+        username = packet[position: position + length_username].decode('utf-8')
+        position += length_username
+        if logger.DEBUG:
+            logger.logging.debug(f"\tClient-Username: {username}")
+
+        return position, username
+
+    def extract_password(packet, position):
+
+        position += 1
+        length_password = packet[position]
+        position += 1
+        password = packet[position: position + length_password].decode('utf-8')
+        position += length_password
+
+        if logger.DEBUG:
+            logger.logging.debug(f"\tClient-Password: {password}")
+
+        return position, password
+

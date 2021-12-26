@@ -8,6 +8,7 @@ import warnings
 import os
 import uvloop
 import signal
+from cryptography.fernet import Fernet
 
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 STOP = asyncio.Event()
@@ -33,8 +34,10 @@ def on_message(client, topic, payload, qos, properties):
     :param qos: QOS of the received message
     :param properties: properties of the received message
     """
-
-    logging.info(f'[RECV MSG] {topic}:{payload.decode("utf-8")}')
+    cipher_key = b'WDrevvK8ZrPn8gmiNFjcOp2xovBr40TCwJlZOyI94IY='
+    cipher = Fernet(cipher_key)
+    decrypted_message = cipher.decrypt(payload)
+    logging.info(f'[RECV MSG] {topic}:{decrypted_message.decode()}')
 
 
 
@@ -123,6 +126,7 @@ async def main(args):
 
     # if both are not specified, then connect via insecure channel
     elif not args.cert and not args.key:
+        client.set_auth_credentials(args.usr, args.passwd)
         await client.connect(host=args.host, port=args.port)
     # if only one of them is specified, print error and exit
     else:
@@ -154,7 +158,7 @@ if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
     warnings.filterwarnings('ignore', category=DeprecationWarning)
 
-    HOSTNAME = "MindFlayer.fritz.box"
+    HOSTNAME = "localhost"
     PORT = 1883
     CLIENT_ID = str(random.randint(0,50000))
 
@@ -172,6 +176,14 @@ if __name__ == '__main__':
 
     # argument for topic
     parser.add_argument('-t', '--topic', type=str, dest="topic", metavar="TOPIC", help="MQTT topic to subscribe to.")
+
+    # argument for username
+    parser.add_argument('--usr', type=str, dest="usr", metavar="USR",
+                        help="Client username for authentication.")
+
+    # argument for password
+    parser.add_argument('--passwd', type=str, dest="passwd", metavar="PASSWD",
+                        help="Client password for authentication.")
 
     # argument for cert
     parser.add_argument('--cert', type=str, dest="cert", metavar="CERT", help="Client certificate for authentication, if required by the server.")

@@ -1,4 +1,4 @@
-#!/Users/babbadeckl/Git/MasterThesis/MultilateralSecurityForMQTT/venv/bin/python
+#!/home/new-broker/PycharmProjects/multilateral-security-mqtt/venv/bin/python
 # -*- coding: utf-8 -*-
 import re
 import sys
