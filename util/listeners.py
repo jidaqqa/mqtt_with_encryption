@@ -7,6 +7,7 @@ from util.exceptions import MQTTMessageNotSupportedException
 from util.exceptions import IncorrectProtocolOrderException
 from util.client_manager import *
 import util.enums as enums
+import util.authentication_plugin as auth
 
 ALLOWED_CONNECTIONS = 10
 
@@ -44,11 +45,18 @@ class ClientThread(threading.Thread):
         self.listen()
 
     def handle_connect(self, parsed_msg):
+        authenticated = False
         """
         Handle the MQTT CONNECT message: update the status of the client to CONN_RECV, store the sent user properties
         in the ClientManager and set the ClientID. Afterwards send a CONNACK msg back to the client.
         :param parsed_msg: a parsed version of the received message
         """
+        try:
+            authenticated = auth.Authentication.read_password_file("passwd", parsed_msg['username'], parsed_msg['password'])
+
+        except ImportWarning as e:
+            logger.logging.info(f"Password-file not found.")
+
         try:
             self._client_manager.add_status(self.client_socket, self.client_address, enums.Status.CONN_RECV)
             self._client_manager.add_user_property(self.client_socket, self.client_address, parsed_msg['properties'])
@@ -57,7 +65,7 @@ class ClientThread(threading.Thread):
         except (IncorrectProtocolOrderException, TypeError) as e:
             logger.logging.error(e)
             self.close()
-        connack_msg = MQTTPacketManager.prepare_connack(parsed_msg)
+        connack_msg = MQTTPacketManager.prepare_connack(parsed_msg, authenticated)
         self.client_socket.send(connack_msg)
         logger.logging.info(f"Sent CONNACK to client {parsed_msg['client_id']}.")
 

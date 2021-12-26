@@ -1,5 +1,6 @@
 import util.enums as enums
 import util.logger as logger
+import util.authentication_plugin as authentication
 import struct
 
 
@@ -47,9 +48,10 @@ class MQTTPacketManager(object):
         return struct.pack('BB', fixed_header, remaining_length)
 
     @staticmethod
-    def prepare_connack(parsed_msg):
+    def prepare_connack(parsed_msg, authenticated):
         """
         Prepare the CONNACK packet according to the MQTTv5.0 specification Chapter 3.2 CONNACK – Connect acknowledgement
+        :param authenticated: To check if the user has the right to connect to the broker
         :param parsed_msg: FOR FUTURE FUNCTIONALITY
         :return: CONNACK packet that should be sent to the client (as bytes)
         """
@@ -62,7 +64,10 @@ class MQTTPacketManager(object):
         flags = 0
         remaining_length += 1
         # Reason Code
-        reason_code = enums.ConnectReasonCodes.Success.value
+        if authenticated:
+            reason_code = enums.ConnectReasonCodes.Success.value
+        else:
+            reason_code = enums.ConnectReasonCodes.NotAuthorized.value
         remaining_length += 1
 
         return struct.pack('BBBB', fixed_header, remaining_length, flags, reason_code)
