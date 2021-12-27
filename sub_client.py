@@ -8,6 +8,7 @@ import warnings
 import os
 import uvloop
 import signal
+import util.encryption as decrypt
 from cryptography.fernet import Fernet
 
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
@@ -34,9 +35,8 @@ def on_message(client, topic, payload, qos, properties):
     :param qos: QOS of the received message
     :param properties: properties of the received message
     """
-    cipher_key = b'WDrevvK8ZrPn8gmiNFjcOp2xovBr40TCwJlZOyI94IY='
-    cipher = Fernet(cipher_key)
-    decrypted_message = cipher.decrypt(payload)
+
+    decrypted_message = decrypt.EncryptionDecryption.decrypt_method(topic, "edkeys", payload)
     logging.info(f'[RECV MSG] {topic}:{decrypted_message.decode()}')
 
 

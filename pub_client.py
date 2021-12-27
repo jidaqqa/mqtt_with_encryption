@@ -8,6 +8,8 @@ import warnings
 import os
 import uvloop
 import signal
+import util.encryption as encrypt
+import json
 from cryptography.fernet import Fernet
 
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
@@ -89,7 +91,11 @@ async def main(args):
 
     # if both are not specified, then connect via insecure channel
     elif not args.cert and not args.key:
-        client.set_auth_credentials(args.usr, args.passwd)
+        username = encrypt.EncryptionDecryption.encrypt_method("mainkey", "edkeys", args.usr)
+        password = encrypt.EncryptionDecryption.encrypt_method("mainkey", "edkeys", args.passwd)
+        logging.info(f"username {username.decode()} \n password {password.decode()}")
+        client.set_auth_credentials(username.decode(), password.decode())
+        # client.set_auth_credentials(args.usr, args.passwd)
         await client.connect(host=args.host, port=args.port)
 
     # if only one of them is specified, print error and exit
@@ -99,10 +105,7 @@ async def main(args):
         exit(0)
 
     # Once connected, publish the specified message to the specified topic with specified user properties (multilateral)
-    cipher_key = b'WDrevvK8ZrPn8gmiNFjcOp2xovBr40TCwJlZOyI94IY='
-    cipher = Fernet(cipher_key)
-    message = bytes(args.message, 'utf-8')
-    encrypted_message = cipher.encrypt(message)
+    encrypted_message = encrypt.EncryptionDecryption.encrypt_method(args.topic, "edkeys", args.message)
 
     if len(args.multilateral_message) > 0:
         for i, multilateral_security_index in enumerate(args.multilateral_message):

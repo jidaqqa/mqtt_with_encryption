@@ -8,6 +8,7 @@ from util.exceptions import IncorrectProtocolOrderException
 from util.client_manager import *
 import util.enums as enums
 import util.authentication_plugin as auth
+import util.encryption as decrypt
 
 ALLOWED_CONNECTIONS = 10
 
@@ -52,7 +53,14 @@ class ClientThread(threading.Thread):
         :param parsed_msg: a parsed version of the received message
         """
         try:
-            authenticated = auth.Authentication.read_password_file("passwd", parsed_msg['username'], parsed_msg['password'])
+            # logger.logging.info(f"Received encrypted username: %s." % parsed_msg['username'])
+            # logger.logging.info(f"Received encrypted password: %s." % parsed_msg['password'])
+            username = decrypt.EncryptionDecryption.decrypt_method("mainkey", "edkeys", parsed_msg['username'])
+            password = decrypt.EncryptionDecryption.decrypt_method("mainkey", "edkeys", parsed_msg['password'])
+            # logger.logging.info(f"Received decrypted username: %s." % username.decode())
+            # logger.logging.info(f"Received decrypted password: %s." % password.decode())
+            authenticated = auth.Authentication.read_password_file("passwd", username.decode(), password.decode())
+            # authenticated = auth.Authentication.read_password_file("passwd", parsed_msg['username'], parsed_msg['password'])
 
         except ImportWarning as e:
             logger.logging.info(f"Password-file not found.")

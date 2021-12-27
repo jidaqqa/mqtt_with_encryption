@@ -23,7 +23,7 @@ class MQTTPacketManager(object):
             logger.logging.debug(
                 f"\tControl_packet_type: {enums.PacketIdentifer(control_packet_type)} with flags: {control_packet_flags} and remaining length: {remaining_length}")
         if enums.PacketIdentifer(control_packet_type) == enums.PacketIdentifer.CONNECT:
-            return MQTTPacketManager.parse_connect(packet[2:], remaining_length)
+            return MQTTPacketManager.parse_connect(packet[3:], remaining_length)
         elif enums.PacketIdentifer(control_packet_type) == enums.PacketIdentifer.PUBLISH:
             return MQTTPacketManager.parse_publish(packet, remaining_length, client_socket, client_address, client_manager)
         elif enums.PacketIdentifer(control_packet_type) == enums.PacketIdentifer.SUBSCRIBE:
@@ -174,6 +174,7 @@ class MQTTPacketManager(object):
         :param remaining_length: the size of the packet
         :return: a dictionary containing meaningful values of the received packet
         """
+
         parsed_msg = {'identifier': enums.PacketIdentifer.CONNECT}
         current_pos = 0
         current_pos, parsed_msg['protocol'] = MQTTPacketManager.extract_protocol_name(packet, current_pos)
@@ -332,6 +333,7 @@ class MQTTPacketManager(object):
             logger.logging.debug(f"\tMSB: {length_msb}, LSB: {length_lsb}, protocol_name: {protocol_name}")
         return position, protocol_name
 
+
     @staticmethod
     def extract_protocol_version(packet, position):
         """
@@ -457,26 +459,32 @@ class MQTTPacketManager(object):
             logger.logging.debug(f"\tClientID: {client_id}")
         return position, client_id
 
+    @staticmethod
     def extract_username(packet, position):
 
+        length_msb = packet[position]
         position += 1
-        length_username = packet[position]
+        length_lsb = packet[position]
         position += 1
-        username = packet[position: position + length_username].decode('utf-8')
-        position += length_username
+        length_name = (length_msb << 4) | length_lsb
+        username = packet[position: position + length_name].decode('utf-8')
+        position += length_name
+        logger.logging.info(f"\tClient-Username: {username}")
         if logger.DEBUG:
             logger.logging.debug(f"\tClient-Username: {username}")
 
         return position, username
 
+    @staticmethod
     def extract_password(packet, position):
 
+        length_msb = packet[position]
         position += 1
-        length_password = packet[position]
+        length_lsb = packet[position]
         position += 1
-        password = packet[position: position + length_password].decode('utf-8')
-        position += length_password
-
+        length_name = (length_msb << 4) | length_lsb
+        password = packet[position: position + length_name].decode('utf-8')
+        logger.logging.info(f"\tClient-Password: {password}")
         if logger.DEBUG:
             logger.logging.debug(f"\tClient-Password: {password}")
 

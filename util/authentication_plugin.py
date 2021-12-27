@@ -9,7 +9,6 @@ class Authentication(object):
         users = dict()
         try:
             with open(password_file) as f:
-                logger.logging.debug(f"\tReading user database from %s" % password_file)
                 for l in f:
                     line = l.strip()
                     if not line.startswith('#'):  # Allow comments in files
