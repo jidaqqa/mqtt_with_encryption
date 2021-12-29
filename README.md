@@ -1,7 +1,3 @@
-# Multilateral Security for MQTT
+# Symmetric Encryption for MQTT
 
-* Proof-of-concept implementations for MQTT broker and MQTT client supporting
-  Multilateral Security
-
-
-## TO BE UPDATED
+* Applying encrpytion to MQTT payload and users credential
