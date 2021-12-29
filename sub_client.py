@@ -8,8 +8,7 @@ import warnings
 import os
 import uvloop
 import signal
-import util.encryption as decrypt
-from cryptography.fernet import Fernet
+import util.encryption as encrypt
 
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 STOP = asyncio.Event()
@@ -35,8 +34,8 @@ def on_message(client, topic, payload, qos, properties):
     :param qos: QOS of the received message
     :param properties: properties of the received message
     """
-
-    decrypted_message = decrypt.EncryptionDecryption.decrypt_method(topic, "edkeys", payload)
+    logging.info(f'Encrypted Message received by Sub-Client {topic}:{payload}')
+    decrypted_message = encrypt.EncryptionDecryption.decrypt_method(topic, "edkeys", payload.decode())
     logging.info(f'[RECV MSG] {topic}:{decrypted_message.decode()}')
 
 
@@ -126,7 +125,10 @@ async def main(args):
 
     # if both are not specified, then connect via insecure channel
     elif not args.cert and not args.key:
-        client.set_auth_credentials(args.usr, args.passwd)
+        username = encrypt.EncryptionDecryption.encrypt_method("mainkey", "edkeys", args.usr)
+        password = encrypt.EncryptionDecryption.encrypt_method("mainkey", "edkeys", args.passwd)
+        logging.info(f"username {username.decode()} \n password {password.decode()}")
+        client.set_auth_credentials(username.decode(), password.decode())
         await client.connect(host=args.host, port=args.port)
     # if only one of them is specified, print error and exit
     else:

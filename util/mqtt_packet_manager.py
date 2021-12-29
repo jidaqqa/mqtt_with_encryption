@@ -320,6 +320,7 @@ class MQTTPacketManager(object):
         :param position: the current position in the packet
         :return: updated position and the protocol name (as str)
         """
+        position = 0
         length_msb = packet[position]
         position += 1
         length_lsb = packet[position]

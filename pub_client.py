@@ -9,8 +9,6 @@ import os
 import uvloop
 import signal
 import util.encryption as encrypt
-import json
-from cryptography.fernet import Fernet
 
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 STOP = asyncio.Event()
