@@ -91,7 +91,8 @@ async def main(args):
     elif not args.cert and not args.key:
         username = encrypt.EncryptionDecryption.encrypt_method("mainkey", "edkeys", args.usr)
         password = encrypt.EncryptionDecryption.encrypt_method("mainkey", "edkeys", args.passwd)
-        logging.info(f"username {username.decode()} \n password {password.decode()}")
+        logging.info(f"username {username.decode()}")
+        logging.info(f"password {password.decode()}")
         client.set_auth_credentials(username.decode(), password.decode())
         # client.set_auth_credentials(args.usr, args.passwd)
         await client.connect(host=args.host, port=args.port)

@@ -470,7 +470,7 @@ class MQTTPacketManager(object):
         length_name = (length_msb << 4) | length_lsb
         username = packet[position: position + length_name].decode('utf-8')
         position += length_name
-        logger.logging.info(f"\tClient-Username: {username}")
+    #    logger.logging.info(f"\tClient-Username: {username}")
         if logger.DEBUG:
             logger.logging.debug(f"\tClient-Username: {username}")
 
@@ -485,7 +485,7 @@ class MQTTPacketManager(object):
         position += 1
         length_name = (length_msb << 4) | length_lsb
         password = packet[position: position + length_name].decode('utf-8')
-        logger.logging.info(f"\tClient-Password: {password}")
+        # logger.logging.info(f"\tClient-Password: {password}")
         if logger.DEBUG:
             logger.logging.debug(f"\tClient-Password: {password}")
 

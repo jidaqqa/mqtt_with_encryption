@@ -53,12 +53,12 @@ class ClientThread(threading.Thread):
         :param parsed_msg: a parsed version of the received message
         """
         try:
-            # logger.logging.info(f"Received encrypted username: %s." % parsed_msg['username'])
-            # logger.logging.info(f"Received encrypted password: %s." % parsed_msg['password'])
+            logger.logging.info(f"Received encrypted username: %s." % parsed_msg['username'])
+            logger.logging.info(f"Received encrypted password: %s." % parsed_msg['password'])
             username = decrypt.EncryptionDecryption.decrypt_method("mainkey", "edkeys", parsed_msg['username'])
             password = decrypt.EncryptionDecryption.decrypt_method("mainkey", "edkeys", parsed_msg['password'])
-            # logger.logging.info(f"Received decrypted username: %s." % username.decode())
-            # logger.logging.info(f"Received decrypted password: %s." % password.decode())
+            logger.logging.info(f"Received decrypted username: %s." % username.decode())
+            logger.logging.info(f"Received decrypted password: %s." % password.decode())
             authenticated = auth.Authentication.read_password_file("passwd", username.decode(), password.decode())
             # authenticated = auth.Authentication.read_password_file("passwd", parsed_msg['username'], parsed_msg['password'])
 
@@ -174,19 +174,19 @@ class ClientThread(threading.Thread):
                         logger.logging.debug(f"Received raw message on Port {self.listener.port}: {msg}")
                     parsed_msg = MQTTPacketManager.parse_packet(msg, self.client_socket, self.client_address, self._client_manager)
                     if parsed_msg['identifier'] == enums.PacketIdentifer.CONNECT:
-                        logger.logging.info(f"Received CONNECT message from Client {parsed_msg['client_id']} on Port {self.listener.port}: {msg}")
+                        # logger.logging.info(f"Received CONNECT message from Client {parsed_msg['client_id']} on Port {self.listener.port}: {msg}")
                         self.handle_connect(parsed_msg)
                     elif parsed_msg['identifier'] == enums.PacketIdentifer.PUBLISH:
-                        logger.logging.info(f"Received PUBLISH message from Client {self.client_id} on Port {self.listener.port}: {msg}")
+                        # logger.logging.info(f"Received PUBLISH message from Client {self.client_id} on Port {self.listener.port}: {msg}")
                         self.handle_publish(parsed_msg)
                     elif parsed_msg['identifier'] == enums.PacketIdentifer.SUBSCRIBE:
-                        logger.logging.info(f"Received SUBSCRIBE message from Client {self.client_id} on Port {self.listener.port}: {msg}")
+                        # logger.logging.info(f"Received SUBSCRIBE message from Client {self.client_id} on Port {self.listener.port}: {msg}")
                         self.handle_subscribe(parsed_msg)
                     elif parsed_msg['identifier'] == enums.PacketIdentifer.PINGREQ:
-                        logger.logging.info(f"Received PINGREQ message from Client {self.client_id} on Port {self.listener.port}: {msg}")
+                        # logger.logging.info(f"Received PINGREQ message from Client {self.client_id} on Port {self.listener.port}: {msg}")
                         self.handle_pingreq(parsed_msg)
                     elif parsed_msg['identifier'] == enums.PacketIdentifer.DISCONNECT:
-                        logger.logging.info(f"Received DISCONNECT message from Client {self.client_id} on Port {self.listener.port}: {msg}")
+                        # logger.logging.info(f"Received DISCONNECT message from Client {self.client_id} on Port {self.listener.port}: {msg}")
                         self.handle_disconnect(parsed_msg)
                     else:
                         raise MQTTMessageNotSupportedException(f'Client {self.client_address} sent a message with identifier: `{parsed_msg["identifier"]}`. Not supported, therefore ignored!')

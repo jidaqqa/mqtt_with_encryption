@@ -34,10 +34,9 @@ def on_message(client, topic, payload, qos, properties):
     :param qos: QOS of the received message
     :param properties: properties of the received message
     """
-    logging.info(f'Encrypted Message received by Sub-Client {topic}:{payload}')
+    logging.info(f'Encrypted publish payload received by Sub-Client {topic}:{payload}')
     decrypted_message = encrypt.EncryptionDecryption.decrypt_method(topic, "edkeys", payload.decode())
-    logging.info(f'[RECV MSG] {topic}:{decrypted_message.decode()}')
-
+    logging.info(f'Decrypted publish payload received by Sub-Client {topic}:{decrypted_message.decode()}')
 
 
 def on_disconnect(client, packet, exc=None):
@@ -127,7 +126,8 @@ async def main(args):
     elif not args.cert and not args.key:
         username = encrypt.EncryptionDecryption.encrypt_method("mainkey", "edkeys", args.usr)
         password = encrypt.EncryptionDecryption.encrypt_method("mainkey", "edkeys", args.passwd)
-        logging.info(f"username {username.decode()} \n password {password.decode()}")
+        logging.info(f"username {username.decode()}")
+        logging.info(f"password {password.decode()}")
         client.set_auth_credentials(username.decode(), password.decode())
         await client.connect(host=args.host, port=args.port)
     # if only one of them is specified, print error and exit
